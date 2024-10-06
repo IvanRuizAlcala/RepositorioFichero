@@ -35,6 +35,11 @@ public class Articulo implements Keyable<Long> {
 	public boolean equalKey(Long keyable) {
 		return this.id==keyable;
 	}
+	@Override
+	public Long getKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	
 	

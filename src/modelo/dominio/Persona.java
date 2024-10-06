@@ -51,5 +51,11 @@ public class Persona implements Keyable<String> {
 	public boolean equalKey(String keyable) {
 		return this.getDni().equals(keyable);
 	}
+
+	@Override
+	public String getKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
