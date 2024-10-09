@@ -1,8 +1,9 @@
 package modelo.dominio;
 
+import modelo.repositorios.KeyAccesible;
 import modelo.repositorios.Keyable;
 
-public class Articulo implements Keyable<Long> {
+public class Articulo implements KeyAccesible<Long>  {
 	private Long id;
 	private String descripcion;
 	private float precio;
@@ -38,7 +39,7 @@ public class Articulo implements Keyable<Long> {
 	@Override
 	public Long getKey() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.getId();
 	}
 
 	

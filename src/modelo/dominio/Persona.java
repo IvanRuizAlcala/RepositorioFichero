@@ -1,13 +1,11 @@
 package modelo.dominio;
 
-import java.util.Objects;
-
 import modelo.repositorios.Keyable;
 
 public class Persona implements Keyable<String> {
 	private String dni;
 	private String nombre;
-	
+//hhhh
 	public Persona(String dNICliente, String nombre) {
 		super();
 		this.dni = dNICliente;
@@ -30,10 +28,11 @@ public class Persona implements Keyable<String> {
 		this.nombre = nombre;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(dni);
-	}
+	/**
+	 * 0
+	 * 
+	 * @Override public int hashCode() { return Object.hash(dni); }
+	 **/
 
 	@Override
 	public boolean equals(Object obj) {
@@ -44,7 +43,7 @@ public class Persona implements Keyable<String> {
 		if (getClass() != obj.getClass())
 			return false;
 		Persona other = (Persona) obj;
-		return Objects.equals(dni, other.dni);
+		return obj.equals(dni);
 	}
 
 	@Override
@@ -52,10 +51,8 @@ public class Persona implements Keyable<String> {
 		return this.getDni().equals(keyable);
 	}
 
-	@Override
-	public String getKey() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+	/**
+	 * public String getKey() { // TODO Auto-generated method stub return null; }
+	 */
+
 }
