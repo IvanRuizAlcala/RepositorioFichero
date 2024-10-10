@@ -87,7 +87,6 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 			return Optional.empty();
 			// no encuentra clave
 		}
-
 		Long offset = index.get(key); // nos devuelve el offset a partir de la clave (indice)
 		return accesoSerializadoAleatorioMultiObjeto.load(offset); // te devuelve el objeto a su posicion en el archivo
 	}
@@ -99,16 +98,9 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 			return false;
 			// si no existe existe en el mapa, no hay objeto qeu actualizar
 		}
-
 		Long offset = index.get(clave);
 		accesoSerializadoAleatorioMultiObjeto.save(objeto); // como es cambiar un objeto entero lo reescribimos
-		index.put(clave, offset); // lo vuelvo a cargar en el map index
-		try {
-			accesoSerializadoUnicoObjeto.save(index); // lo guardo en el objeto unico
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		return true;
 	}
 

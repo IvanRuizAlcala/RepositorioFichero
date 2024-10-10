@@ -63,10 +63,14 @@ class RepositorioFicheroIndexadoTest {
 		Articulo articulo = repositorioFicheroIndexado.getByKey(objeto.getKey()).get();
 		String descripcion = "cambio nombre";
 		articulo.setDescripcion(descripcion);
-		assertTrue(repositorioFicheroIndexado.update(articulo));
+		boolean update = repositorioFicheroIndexado.update(articulo);
+		assertTrue(update);
 		Optional<Articulo> byKey = repositorioFicheroIndexado.getByKey(objeto.getKey());
 		assertTrue(byKey.isPresent());
-		assertEquals(byKey.get().getDescripcion().equals(byKey),descripcion);
+		String descripcion2 = byKey.get().getDescripcion();
+		System.out.println(descripcion2);
+		System.out.println(descripcion);
+		assertEquals(descripcion2,descripcion);
 		assertFalse(repositorioFicheroIndexado.update(noExiste));
 	}
 
