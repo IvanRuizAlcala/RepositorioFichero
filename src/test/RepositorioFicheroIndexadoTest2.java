@@ -21,9 +21,9 @@ import modelo.repositorios.AccesoSecuencialFicheroSerializadoMultiObjeto;
 import modelo.repositorios.RepositorioFicheroIndexado;
 import modelo.repositorios.Repository;
 
-class RepositorioFicheroIndexadoTest {
+class RepositorioFicheroIndexadoTest2 {
 	
-	Repository<Articulo,Long> repositorioFicheroIndexado;
+	Repository<Articulo,Long> repositorio;
 	String pathFolder="articulos";
 	Articulo objeto = new Articulo(4000L, "Arandela", 4f);
 	Articulo articulo2 = new Articulo(4001l,"colibri",1f);
@@ -32,9 +32,9 @@ class RepositorioFicheroIndexadoTest {
 	@BeforeEach
 	void before() {
 		try {
-			repositorioFicheroIndexado=
+			repositorio=
 					new RepositorioFicheroIndexado<Articulo,Long>(pathFolder
-							,new AccesoAleatorioFicheroSerializadoMultiObjeto<Articulo>());
+							,new AccesoSecuencialFicheroSerializadoMultiObjeto<Articulo>());
 			Repository<Articulo,Long> repositorioFicheroIndexadoDos=new RepositorioFicheroIndexado<Articulo, Long>(pathFolder
 					,new AccesoAleatorioFicheroSerializadoMultiObjeto<Articulo>());
 		} catch (NotFolderPath e) {
@@ -46,41 +46,41 @@ class RepositorioFicheroIndexadoTest {
 
 	@Test
 	void testAdd() {
-		assertTrue(repositorioFicheroIndexado.add(objeto));
-		assertFalse(repositorioFicheroIndexado.add(objeto));
+		assertTrue(repositorio.add(objeto));
+		assertFalse(repositorio.add(objeto));
 	}
 
 	@Test
 	void testGetByKey() {
 		insertTwoElements();
-		assertTrue(repositorioFicheroIndexado.getByKey(objeto.getKey()).isPresent());
-		assertTrue(repositorioFicheroIndexado.getByKey(articulo2.getKey()).isPresent());
+		assertTrue(repositorio.getByKey(objeto.getKey()).isPresent());
+		assertTrue(repositorio.getByKey(articulo2.getKey()).isPresent());
 	}
 
 	private void insertTwoElements() {
-		repositorioFicheroIndexado.add(articulo2);
-		repositorioFicheroIndexado.add(objeto);
+		repositorio.add(articulo2);
+		repositorio.add(objeto);
 	}
 
 	@Test
 	void testUpdate() {
 		insertTwoElements();
-		Articulo articulo = repositorioFicheroIndexado.getByKey(objeto.getKey()).get();
+		Articulo articulo = repositorio.getByKey(objeto.getKey()).get();
 		String descripcion = "cambio nombre";
 		articulo.setDescripcion(descripcion);
-		assertTrue(repositorioFicheroIndexado.update(articulo));
-		Optional<Articulo> byKey = repositorioFicheroIndexado.getByKey(objeto.getKey());
+		assertTrue(repositorio.update(articulo));
+		Optional<Articulo> byKey = repositorio.getByKey(objeto.getKey());
 		assertTrue(byKey.isPresent());
 		assertEquals(byKey.get().getDescripcion(),descripcion);
-		assertFalse(repositorioFicheroIndexado.update(noExiste));
+		assertFalse(repositorio.update(noExiste));
 	}
 
 	@Test
 	void testDelete() {
 		insertTwoElements();
-		assertEquals(repositorioFicheroIndexado.delete(articulo2.getKey()).get(),articulo2);
-		assertTrue(repositorioFicheroIndexado.getByKey(articulo2.getKey()).isEmpty());
-		assertFalse(repositorioFicheroIndexado.delete(noExiste.getKey()).isPresent());
+		assertEquals(repositorio.delete(articulo2.getKey()).get(),articulo2);
+		assertTrue(repositorio.getByKey(articulo2.getKey()).isEmpty());
+		assertFalse(repositorio.delete(noExiste.getKey()).isPresent());
 	}
 
 	@AfterEach

@@ -15,17 +15,19 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 	private String pathFolder;
 	private String indexFile, objectFile;
 	private Map<S, Long> index;
-	private AccesibleUnicoObjeto<Map<S, Long>> accesoSerializadoUnicoObjeto;
-	private AccesibleMultiObjeto<T> accesoSerializadoAleatorioMultiObjeto;
+	private AccesibleUnicoObjeto<Map<S, Long>> accesoUnicoObjeto;
+	private AccesibleMultiObjeto<T> accesoMultiObjeto;
 
-	public RepositorioFicheroIndexado(String pathFolder) throws NotFolderPath, IndexNotAccesibleException {
+	public RepositorioFicheroIndexado(String pathFolder, AccesibleMultiObjeto<T> accesoMultiObjeto)
+			throws NotFolderPath, IndexNotAccesibleException {
 		super();
 		this.pathFolder = pathFolder;
 		checkPath(pathFolder);
 		createPaths();
 		if (!loadIndex())
 			throw new IndexNotAccesibleException();
-		accesoSerializadoAleatorioMultiObjeto = new AccesoAleatorioFicheroSerializadoMultiObjeto<>(objectFile);
+		this.accesoMultiObjeto = accesoMultiObjeto;
+		this.accesoMultiObjeto.setPath(objectFile);
 	}
 
 	private void createPaths() {
@@ -35,10 +37,10 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 
 	private boolean loadIndex() {
 		try {
-			accesoSerializadoUnicoObjeto = new AccesoFicheroSerializadoUnicoObjeto<Map<S, Long>>(indexFile);
-			index = accesoSerializadoUnicoObjeto.load().orElse(new HashMap<>());
+			accesoUnicoObjeto = new AccesoFicheroSerializadoUnicoObjeto<Map<S, Long>>(indexFile);
+			index = accesoUnicoObjeto.load().orElse(new HashMap<>());
 			if (index.size() == 0)
-				accesoSerializadoUnicoObjeto.save(index);
+				accesoUnicoObjeto.save(index);
 			return true;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -59,73 +61,55 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 		}
 	}
 
-	// S es la clase, T es tipo
 	@Override
 	public boolean add(T objeto) {
-		S clave = objeto.getKey();
-		if (index.containsKey(objeto.getKey())) {
-			return false; // la clave ya existe
+		if (index.containsKey(objeto.getKey()))
+			return false;
+		Long save = accesoMultiObjeto.save(objeto);
+		if (save == -1) {
+			return undoingChanges();
 		}
-		// uso el método save (retorna una posicion) que hay en serializado multiobjeto
-		// para guaradr en el mapa
-		Long posicion = accesoSerializadoAleatorioMultiObjeto.save(objeto);
-		// meto en el mapa index la clave y la posicion
-		index.put(clave, posicion);
+		index.put(objeto.getKey(), save);
 		try {
-			accesoSerializadoUnicoObjeto.save(index);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			accesoUnicoObjeto.save(index);
+		} catch (Exception e) {
+			index.remove(objeto.getKey());
+			return undoingChanges();
 		}
-
 		return true;
+	}
+
+	private boolean undoingChanges() {
+		accesoMultiObjeto.undo();
+		return false;
 	}
 
 	@Override
 	public Optional<T> getByKey(S key) {
-		if (!index.containsKey(key)) {
-			return Optional.empty();
-			// no encuentra clave
+		Long long1 = index.get(key);
+		if (long1 != null) {
+			return accesoMultiObjeto.load(long1);
 		}
-		Long offset = index.get(key); // nos devuelve el offset a partir de la clave (indice)
-		return accesoSerializadoAleatorioMultiObjeto.load(offset); // te devuelve el objeto a su posicion en el archivo
+		return Optional.empty();
 	}
 
 	@Override
 	public boolean update(T objeto) {
-		S clave = objeto.getKey();
-		if (!index.containsKey(clave)) {
-			return false;
-			// si no existe existe en el mapa, no hay objeto qeu actualizar
+		Optional<T> delete = delete(objeto.getKey());
+		if(delete.isPresent()) {
+			return add(objeto);
 		}
-		Long offset = index.get(clave);
-		accesoSerializadoAleatorioMultiObjeto.save(objeto); // como es cambiar un objeto entero lo reescribimos
-
-		return true;
+		return false;
 	}
 
 	@Override
 	public Optional<T> delete(S key) {
-		if (!index.containsKey(key)) {
-			return Optional.empty();
+		Optional<T> byKey = getByKey(key);
+		if(byKey.isPresent()) {
+			index.remove(key);
+			return byKey;
 		}
-		Long offset = index.get(key);
-		Optional<T> objeto = accesoSerializadoAleatorioMultiObjeto.load(offset); // cargamos el objeto en el archivo
-		if (objeto.isPresent()) {
-			index.remove(key); //si está presente que lo borre
-		}
-		try {
-			accesoSerializadoUnicoObjeto.save(index);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // antes de borrarlo porqe el metodo
-			// devuelve el archivo borrado
-		return objeto;
-
+		return Optional.empty();
 	}
 
 }

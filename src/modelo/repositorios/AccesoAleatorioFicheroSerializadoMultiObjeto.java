@@ -14,12 +14,25 @@ public class AccesoAleatorioFicheroSerializadoMultiObjeto<T> implements Accesibl
 
 	private File file;
 	private Long undoLong;
+
+	public AccesoAleatorioFicheroSerializadoMultiObjeto() {
+		super();
+	}
 	
 	public AccesoAleatorioFicheroSerializadoMultiObjeto(String path) {
 		super();
+		setFile(path);
+	}
+
+	private void setFile(String path) {
 		file=new File(path);
 	}
 
+
+	public void setPath(String path) {
+		setFile(path);
+	}
+	
 	@Override
 	public Optional<T> load(Long offset) {
 		try {

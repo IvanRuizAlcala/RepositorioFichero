@@ -3,6 +3,8 @@ package modelo.repositorios;
 import java.util.List;
 import java.util.Optional;
 
+import modelo.dominio.Persona;
+
 public class RepositorioLista<T extends Keyable<S>, S> implements Repository<T, S> {
 	private List<T> elementos;
 	

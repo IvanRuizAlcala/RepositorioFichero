@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
+import modelo.dominio.Articulo;
 import modelo.dominio.Persona;
 import modelo.dominio.Vendedor;
 import modelo.repositorios.RepositorioLista;

@@ -9,5 +9,7 @@ public interface AccesibleMultiObjeto<T> {
 	Long save(T t);
 
 	void undo();
+	
+	void setPath(String path);
 
 }
