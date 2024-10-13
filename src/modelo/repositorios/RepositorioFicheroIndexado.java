@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import exceptions.IndexNotAccesibleException;
 import exceptions.NotFolderPath;
+import modelo.dominio.Compact;
 
 public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements Repository<T, S> {
 
@@ -17,6 +18,7 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 	private Map<S, Long> index;
 	private AccesibleUnicoObjeto<Map<S, Long>> accesoUnicoObjeto;
 	private AccesibleMultiObjeto<T> accesoMultiObjeto;
+	private Compact compactar = new Compact(0,0);
 
 	public RepositorioFicheroIndexado(String pathFolder, AccesibleMultiObjeto<T> accesoMultiObjeto)
 			throws NotFolderPath, IndexNotAccesibleException {
@@ -76,6 +78,7 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 			index.remove(objeto.getKey());
 			return undoingChanges();
 		}
+		compactar.sumarEntradas();
 		return true;
 	}
 
@@ -107,9 +110,15 @@ public class RepositorioFicheroIndexado<T extends KeyAccesible<S>, S> implements
 		Optional<T> byKey = getByKey(key);
 		if(byKey.isPresent()) {
 			index.remove(key);
+			compactar.sumarSalidas();
 			return byKey;
 		}
 		return Optional.empty();
+	}	
+	public void compactacion() {
+		if(compactar.flagCompact()==true) {
+			
+		}
 	}
 
 }
